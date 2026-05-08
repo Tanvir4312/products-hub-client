@@ -1,0 +1,9 @@
+{
+    "editor.tabSize": 1,
+    "workbench.editor.tabSizingFixedMaxWidth": 40,
+    "editor.detectIndentation": true,
+    "workbench.editor.pinnedTabSizing": "normal",
+    "editor.stickyTabStops": false,
+    "editor.inlayHints.fontSize": 7,
+    "workbench.editor.tabSizingFixedMinWidth": 100
+}
