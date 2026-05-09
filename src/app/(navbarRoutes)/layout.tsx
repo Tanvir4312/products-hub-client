@@ -1,5 +1,5 @@
 
-import Navbar from "@/components/modules/Home_Page/Navbar/Navbar";
+import Navbar from "@/components/shared/dashboard/Navbar/Navbar";
 import { getUserInfo } from "@/services/authService";
 import { UserRole } from "@/lib/authUtils";
 

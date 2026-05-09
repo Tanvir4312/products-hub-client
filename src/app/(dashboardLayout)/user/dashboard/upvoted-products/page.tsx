@@ -1,8 +1,8 @@
+import UpvotedProducts from "@/components/modules/Dasboard/User_Dashboard/UpvotedProducts";
+
 const UpvotedProductsPage = () => {
     return (
-        <div>
-            <h1>Upvoted Products</h1>
-        </div>
+        <UpvotedProducts />
     );
 };
 

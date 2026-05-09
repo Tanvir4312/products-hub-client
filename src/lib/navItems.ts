@@ -200,7 +200,7 @@ export const userNavItems: NavSection[] = [
         items: [
             {
                 title: "My Subscriptions",
-                href: "/user/dashboard/my-subscriptions",
+                href: "/user/dashboard/my-subscription",
                 icon: "CreditCardIcon"
             }
         ]

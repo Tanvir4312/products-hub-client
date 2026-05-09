@@ -1,8 +1,8 @@
+import MyReviews from "@/components/modules/Dasboard/User_Dashboard/MyReviews";
+
 const MyReviewsPage = () => {
     return (
-        <div>
-            <h1>My Reviews</h1>
-        </div>
+        <MyReviews />
     );
 };
 

@@ -58,7 +58,7 @@ const axiosInstance = async () => {
 };
 
 export interface ApiRequestOptions {
-  params?: Record<string, string>;
+  params?: Record<string, string | number | boolean | undefined>;
   headers?: Record<string, string>;
   data?: any;
 }

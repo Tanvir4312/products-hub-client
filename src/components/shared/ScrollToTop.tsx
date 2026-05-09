@@ -40,7 +40,7 @@ const ScrollToTop = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-2xl bg-emerald-600 dark:bg-slate-800 text-white border border-emerald-500/20 dark:border-slate-700 transition-colors duration-300 group"
+          className="fixed bottom-3.5 right-3.5 md:bottom-5.5 md:right-4 lg:bottom-6 lg:right-6 z-50 p-3 rounded-full shadow-2xl bg-[#FF5E3A] hover:bg-[#e65534] dark:bg-[#FF5E3A] text-white border border-[#FF5E3A]/20 transition-all duration-300 group shadow-[#FF5E3A]/20"
           aria-label="Scroll to top"
         >
           <ChevronUp className="w-6 h-6 transition-transform duration-300 group-hover:-translate-y-1" />

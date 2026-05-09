@@ -1,8 +1,8 @@
+import AddProduct from "@/components/modules/Dasboard/User_Dashboard/AddProduct";
+
 const AddProductPage = () => {
     return (
-        <div>
-            <h1>Add Product</h1>
-        </div>
+        <AddProduct />
     );
 };
 
