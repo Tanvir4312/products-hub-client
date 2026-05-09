@@ -29,7 +29,7 @@ const demoAccounts = [
   },
   {
     role: "USER",
-    email: "user1@gmail.com",
+    email: "user2@gmail.com",
     password: "password1234",
     badge: "Maker",
   },

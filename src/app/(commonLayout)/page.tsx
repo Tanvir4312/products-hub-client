@@ -14,7 +14,7 @@ import Footer from "@/components/modules/Home_Page/Footer/Footer";
 
 const CommonHomePage = async () => {
   const userInfo = await getUserInfo();
-  console.log(userInfo);
+  // console.log(userInfo);
   // let userRole = userInfo?.role
   // const unifySuperAdminAndAdminRole = userRole === "SUPER_ADMIN" ? "ADMIN" : userRole
   // userRole = unifySuperAdminAndAdminRole as UserRole
