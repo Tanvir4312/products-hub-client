@@ -84,6 +84,30 @@ export const useProductVote = (productId: string) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.error("Sync failed. Rolling back.");
     },
+    onSuccess: (_data, variables) => {
+      // Only broadcast when voting (not unvoting)
+      if (!variables.hasVoted) {
+        // Get product name from cache
+        const product = queryClient.getQueryData<any>(["product", productId]);
+        const productName = product?.name || "a product";
+        
+        // Broadcast to activity feed
+        fetch('/api/feed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'upvote',
+            data: {
+              userName: user?.name || 'A user',
+              productName: productName,
+              timestamp: new Date().toISOString()
+            }
+          })
+        }).catch(() => {
+          // Silent fail - broadcasting is best-effort
+        });
+      }
+    },
     onSettled: () => {
       // Always refetch after error or success to keep server and client in sync
       queryClient.invalidateQueries({ queryKey: ["products"] });

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -52,6 +52,11 @@ const AddProduct = () => {
   
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const { 
     register, 
@@ -287,7 +292,7 @@ const AddProduct = () => {
                             <button 
                               type="button"
                               onClick={() => {
-                                setValue('tagIds', watchedValues.tagIds.filter(id => id !== tagId))
+                                setValue('tagIds', watchedValues.tagIds.filter(id => id !== tagId), { shouldValidate: true })
                               }}
                               className="hover:text-foreground"
                             >
@@ -315,24 +320,27 @@ const AddProduct = () => {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="p-0 rounded-2xl border-border" align="start">
-                          <Command className="rounded-2xl">
-                            <CommandInput placeholder="Search tech/industries..." className="font-bold text-xs" />
-                            <CommandEmpty className="py-4 text-xs font-bold text-muted-foreground text-center">No categories found.</CommandEmpty>
-                            <CommandGroup className="max-h-60 overflow-auto">
-                              {tagsData?.filter(t => !field.value.includes(t.id)).map((tag) => (
-                                <CommandItem
-                                  key={tag.id}
-                                  value={tag.name}
-                                  onSelect={() => {
-                                    field.onChange([...field.value, tag.id])
-                                  }}
-                                  className="rounded-xl font-bold text-xs py-3 px-4 cursor-pointer"
-                                >
-                                  {tag.name}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
+                          {mounted && (
+                            <Command className="rounded-2xl">
+                              <CommandInput placeholder="Search tech/industries..." className="font-bold text-xs" />
+                              <CommandEmpty className="py-4 text-xs font-bold text-muted-foreground text-center">No categories found.</CommandEmpty>
+                              <CommandGroup className="max-h-60 overflow-auto">
+                                {tagsData?.filter(t => !field.value?.includes(t.id)).map((tag) => (
+                                  <CommandItem
+                                    key={tag.id}
+                                    value={tag.name}
+                                    onSelect={() => {
+                                      const currentTags = field.value || []
+                                      field.onChange([...currentTags, tag.id])
+                                    }}
+                                    className="rounded-xl font-bold text-xs py-3 px-4 cursor-pointer"
+                                  >
+                                    {tag.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          )}
                         </PopoverContent>
                       </Popover>
                     )}
