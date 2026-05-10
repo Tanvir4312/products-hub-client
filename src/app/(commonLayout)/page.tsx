@@ -34,11 +34,10 @@ const CommonHomePage = async () => {
             backgroundImage: `url(${background_image.src})`,
             backgroundSize: "cover",
             backgroundAttachment: "fixed",
-
             backgroundRepeat: "no-repeat",
             opacity: 0.2,
           }}
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 pointer-events-none"
         >
         </div>
 

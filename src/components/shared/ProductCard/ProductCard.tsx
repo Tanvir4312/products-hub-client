@@ -89,7 +89,10 @@ export const ProductCard = ({ product }: { product: IProduct }) => {
         />
         
         {/* Interaction Overlay */}
-        <div className="absolute inset-0 z-20 bg-background/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6">
+        <div className={cn(
+          "absolute inset-0 z-20 bg-background/40 backdrop-blur-sm transition-opacity duration-300 flex flex-col items-center justify-center p-6",
+          showReportInput ? "opacity-100" : "opacity-0 lg:group-hover:opacity-100"
+        )}>
           {showReportInput ? (
             <motion.form 
               initial={{ scale: 0.9, opacity: 0 }}
@@ -172,22 +175,42 @@ export const ProductCard = ({ product }: { product: IProduct }) => {
 
       <div className="p-6 space-y-4">
         <div onClick={() => router.push(`/products/${product.id}`)} className="block cursor-pointer">
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-2">
+            {/* Desktop Tags and Counts (Hidden on Mobile) */}
+            <div className="hidden lg:flex items-center justify-between gap-2">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
                 {product.tags?.[0]?.tag?.name || "Product"}
               </span>
               <div className="flex items-center gap-3">
-                <div className={cn("flex items-center gap-1 transition-colors", isVoted ? "text-primary" : "text-muted-foreground/60")}>
+                <button
+                  onClick={handleVote}
+                  disabled={isVoting || isOwner}
+                  className={cn(
+                    "flex items-center gap-1 transition-all active:scale-95 lg:pointer-events-none",
+                    isVoted ? "text-primary" : "text-muted-foreground/60 hover:text-primary"
+                  )}
+                  title={isOwner ? "Owner cannot vote" : isVoted ? "Remove vote" : "Upvote"}
+                >
                   <Heart className={cn("w-3.5 h-3.5", isVoted && "fill-current")} />
                   <span className="text-xs font-black">{product._count?.votedUsers || 0}</span>
-                </div>
-                <div className="flex items-center gap-1 text-destructive/60">
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const hasReported = product.reportedUsers?.some((v) => v.userId === user?.id)
+                    if (hasReported) return toast.error("You already reported this innovation")
+                    setShowReportInput(true)
+                  }}
+                  disabled={isOwner}
+                  className="flex items-center gap-1 text-destructive/60 hover:text-destructive transition-all active:scale-95 lg:pointer-events-none"
+                  title={isOwner ? "Owner cannot report" : "Report"}
+                >
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span className="text-xs font-black">{product._count?.reportedUsers || 0}</span>
-                </div>
+                </button>
               </div>
             </div>
+
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-lg font-black text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
                 {product.name}
@@ -205,9 +228,47 @@ export const ProductCard = ({ product }: { product: IProduct }) => {
                 </a>
               )}
             </div>
+            
             <p className="text-xs text-muted-foreground/80 line-clamp-2 min-h-[32px] leading-relaxed">
               {product.description}
             </p>
+
+            {/* Mobile Tags and Compact Buttons (Hidden on Desktop) */}
+            <div className="lg:hidden flex flex-col gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-lg bg-primary/5 text-[8px] font-black uppercase tracking-wider text-primary/70 border border-primary/10">
+                  {product.tags?.[0]?.tag?.name || "Product"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleVote}
+                  disabled={isVoting || isOwner}
+                  className={cn(
+                    "flex-1 h-9 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] font-black uppercase tracking-wider shadow-sm border",
+                    isVoted 
+                      ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
+                      : "bg-background border-border text-foreground hover:bg-muted"
+                  )}
+                >
+                  <Heart className={cn("w-3 h-3", isVoted && "fill-current")} />
+                  {isVoted ? "Upvoted" : "Upvote"} • {product._count?.votedUsers || 0}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const hasReported = product.reportedUsers?.some((v) => v.userId === user?.id)
+                    if (hasReported) return toast.error("You already reported this innovation")
+                    setShowReportInput(true)
+                  }}
+                  disabled={isOwner}
+                  className="h-9 px-3 rounded-xl flex items-center justify-center bg-white border border-border text-destructive/80 hover:bg-destructive/5 hover:border-destructive/20 transition-all active:scale-95 text-[10px] font-black uppercase tracking-wider shadow-sm"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
+                  Report
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-4">

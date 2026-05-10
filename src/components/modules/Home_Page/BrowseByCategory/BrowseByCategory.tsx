@@ -47,10 +47,11 @@ const BrowseByCategory = () => {
 
   // Handle tag selection
   const handleTagClick = (tagName: string) => {
-    if (selectedTag === tagName) {
+    const trimmedName = tagName.trim()
+    if (selectedTag === trimmedName) {
       setSelectedTag(null) // Unselect if clicked again
     } else {
-      setSelectedTag(tagName)
+      setSelectedTag(trimmedName)
     }
   }
 
@@ -175,7 +176,7 @@ const BrowseByCategory = () => {
                     animate={{ opacity: 1 }}
                     className="flex justify-center pt-4"
                   >
-                    <Link href={selectedTag ? `/products?tag=${selectedTag}` : "/products"}>
+                    <Link href={selectedTag ? `/products?tagName=${selectedTag}` : "/products"}>
                       <Button variant="outline" className="group h-12 px-10 rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-xl shadow-primary/5">
                         View All {selectedTag ? `in ${selectedTag}` : "Innovations"}
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

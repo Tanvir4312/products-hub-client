@@ -234,13 +234,62 @@ const ProductDetailsPage = () => {
               {product.tags?.map((pt) => (
                 <Link
                   key={pt.tag.id}
-                  href={`/products?tag=${pt.tag.name}`}
+                  href={`/products?tagName=${pt.tag.name}`}
                   className="px-4 py-2 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-bold transition-all border border-transparent hover:border-border flex items-center gap-2"
                 >
                   <TagIcon className="w-3.5 h-3.5" />
                   {pt.tag.name}
                 </Link>
               ))}
+            </div>
+
+            {/* Mobile Action Section (Visible only on medium and small devices) */}
+            <div className="lg:hidden space-y-8 py-8 border-b border-border">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center text-center">
+                  <Heart className="w-5 h-5 text-primary mb-2 fill-primary/20" />
+                  <span className="text-xl font-black text-primary tracking-tighter">{product._count?.votedUsers || 0}</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Votes</span>
+                </div>
+                <div className="p-4 bg-indigo-600/5 rounded-2xl border border-indigo-600/10 flex flex-col items-center text-center">
+                  <MessageSquare className="w-5 h-5 text-indigo-600 mb-2 fill-indigo-600/20" />
+                  <span className="text-xl font-black text-indigo-600 tracking-tighter">{product._count?.reviews || 0}</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Reviews</span>
+                </div>
+                <div className="p-4 bg-destructive/5 rounded-2xl border border-destructive/10 flex flex-col items-center text-center">
+                  <AlertTriangle className="w-5 h-5 text-destructive mb-2" />
+                  <span className="text-xl font-black text-destructive tracking-tighter">{product._count?.reportedUsers || 0}</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Reports</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={handleVote}
+                  disabled={isOwner || isVoting}
+                  variant={isVoted ? "default" : "outline"}
+                  className={cn(
+                    "w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all",
+                    isOwner ? "bg-muted text-muted-foreground cursor-not-allowed" :
+                      isVoted ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "border-primary text-primary hover:bg-primary hover:text-white"
+                  )}
+                >
+                  {isOwner ? "Owner (No Vote)" : isVoted ? "Upvoted" : "Support Product"}
+                  <Heart className={cn("w-3.5 h-3.5 ml-2", isVoted && "fill-current")} />
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleReport}
+                  disabled={isOwner}
+                  className={cn(
+                    "w-full h-14 rounded-2xl border-border font-black uppercase tracking-[0.2em] text-[10px] gap-2",
+                    isOwner ? "opacity-50 cursor-not-allowed" : "hover:bg-destructive hover:text-white hover:border-destructive transition-colors text-destructive/80"
+                  )}
+                >
+                  {isOwner ? "Owner (No Report)" : "Report Inaccurate"}
+                  <AlertTriangle className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Submit Review Form */}
@@ -447,8 +496,8 @@ const ProductDetailsPage = () => {
             animate={{ opacity: 1, x: 0 }}
             className="p-8 bg-background border border-border rounded-[2.5rem] shadow-xl shadow-primary/5 space-y-8 sticky top-24"
           >
-            {/* Stats Highlight */}
-            <div className="grid grid-cols-3 gap-3">
+            {/* Stats Highlight (Hidden on Mobile) */}
+            <div className="hidden lg:grid grid-cols-3 gap-3">
               <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex flex-col items-center text-center">
                 <Heart className="w-5 h-5 text-primary mb-2 fill-primary/20" />
                 <span className="text-xl font-black text-primary tracking-tighter">{product._count?.votedUsers || 0}</span>
@@ -466,8 +515,8 @@ const ProductDetailsPage = () => {
               </div>
             </div>
 
-            {/* Primary Actions */}
-            <div className="space-y-4">
+            {/* Primary Actions (Hidden on Mobile) */}
+            <div className="hidden lg:flex flex-col gap-4">
               <Button
                 onClick={handleVote}
                 disabled={isOwner || isVoting}
