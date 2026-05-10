@@ -1,9 +1,12 @@
+import TopVotedProducts from "@/components/modules/Dasboard/Moderator_Dashboard/TopVotedProducts/TopVotedProducts";
+
+export const metadata = {
+  title: "Top Voted Products | Moderator Dashboard",
+  description: "View the most popular products based on community upvotes.",
+};
+
 const TopVotedProductsPage = () => {
-    return (
-        <div>
-            <h1>Top Voted Products</h1>
-        </div>
-    );
+  return <TopVotedProducts />;
 };
 
 export default TopVotedProductsPage;

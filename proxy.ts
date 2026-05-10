@@ -73,12 +73,14 @@ export async function proxy(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // 4. Protected Route Access (Not logged in)
+    // 4. Protected Route Access (Not logged in) — redirects all unauthenticated users
     if (!accessToken || !isValidAccessToken) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathWithQuery);
       return NextResponse.redirect(loginUrl);
     }
+
+
 
     // 5. User-Specific Restrictions (Status, Verification, Password Change)
     if (accessToken) {

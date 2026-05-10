@@ -17,8 +17,8 @@ const demoAccounts = [
   },
   {
     role: "ADMIN",
-    email: "admin1@gmail.com",
-    password: "password123",
+    email: "admin5@gmail.com",
+    password: "password1234",
     badge: "Admin",
   },
   {

@@ -1,7 +1,10 @@
+import AdminManagement from "@/components/modules/Dasboard/Admin_Dashboard/AdminManagement/AdminManagement";
+import React from "react";
+
 const AdminsManagementsPage = () => {
     return (
         <div>
-            <h1>Admins Managements</h1>
+            <AdminManagement />
         </div>
     );
 };

@@ -45,7 +45,7 @@ export const adminNavItems: NavSection[] = [
         items: [
             {
                 title: "All Users",
-                href: "/admin/dashboard/allUsers-managements",
+                href: "/admin/dashboard/allUser-managements",
                 icon: "UserIcon"
             },
             {
@@ -106,23 +106,15 @@ export const adminNavItems: NavSection[] = [
         ]
     },
     {
-        title: "Reviews & Feedback",
+        title: "Users Insights",
         items: [
-            {
-                title: "Reviews",
-                href: "/admin/dashboard/reviews",
-                icon: "MessageSquareIcon"
-            },
+
             {
                 title: "Top Voted Products",
                 href: "/admin/dashboard/top-voted-products",
                 icon: "TrendingUpIcon"
             },
-            {
-                title: "Reports",
-                href: "/admin/dashboard/reports",
-                icon: "AlertTriangleIcon"
-            }
+
         ]
     }
 ]
@@ -134,7 +126,7 @@ export const moderatorNavItems: NavSection[] = [
 
             {
                 title: "Product Review Queue",
-                href: "/moderator/dashboard/products-review-queue",
+                href: "/moderator/dashboard/product-review-queue",
                 icon: "FileTextIcon"
             },
             {
@@ -149,7 +141,7 @@ export const moderatorNavItems: NavSection[] = [
         title: "Reviews & Feedback",
         items: [
             {
-                title: "Reviews",
+                title: "All Products With Reviews",
                 href: "/moderator/dashboard/reviews",
                 icon: "MessageSquareIcon"
             },
@@ -158,11 +150,6 @@ export const moderatorNavItems: NavSection[] = [
                 href: "/moderator/dashboard/top-voted-products",
                 icon: "TrendingUpIcon"
             },
-            {
-                title: "Reports",
-                href: "/moderator/dashboard/reports",
-                icon: "AlertTriangleIcon"
-            }
         ]
     }
 

@@ -35,3 +35,20 @@ export const getUserLeaderboard = async (): Promise<ILeaderboardResponse> => {
     };
   }
 };
+
+/**
+ * Fetches dashboard statistics data.
+ */
+export const getDashboardStats = async (): Promise<any> => {
+  try {
+    const response = await httpClient.get("/stats");
+    return response;
+  } catch (error: any) {
+    console.error("Error fetching dashboard stats:", error);
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Failed to fetch dashboard stats.",
+      data: null,
+    };
+  }
+};

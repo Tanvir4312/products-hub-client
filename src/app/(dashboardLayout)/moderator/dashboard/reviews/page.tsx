@@ -1,9 +1,12 @@
-const ReviewsPage = () => {
-    return (
-        <div>
-            <h1>Reviews</h1>
-        </div>
-    );
+import ApprovedProducts from "@/components/modules/Dasboard/Moderator_Dashboard/ApprovedProducts/ApprovedProducts";
+
+export const metadata = {
+  title: "Approved Products | Moderator Dashboard",
+  description: "Manage and view all approved products on the platform.",
 };
 
-export default ReviewsPage;
+const ApprovedProductsPage = () => {
+  return <ApprovedProducts />;
+};
+
+export default ApprovedProductsPage;

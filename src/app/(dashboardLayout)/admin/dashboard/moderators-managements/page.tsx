@@ -1,7 +1,10 @@
+import ModeratorManagement from "@/components/modules/Dasboard/Admin_Dashboard/ModeratorManagement/ModeratorManagement";
+import React from "react";
+
 const ModeratorsManagementsPage = () => {
     return (
         <div>
-            <h1>Moderators Managements</h1>
+            <ModeratorManagement />
         </div>
     );
 };
