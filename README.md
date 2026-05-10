@@ -2,12 +2,32 @@
 
 A modern Product Hunt clone built with Next.js 16, React 19, and TypeScript. Discover, share, and upvote the best new products — with real-time updates, optimistic interactions, and server-side rendering.
 
+## About The Project
+
+In today's AI-driven world, thousands of products — especially AI tools — are scattered across the internet. Finding the right tool at the right time is nearly impossible for most people.
+
+**Products Hub** solves this problem by bringing everything into one place. It is a community-driven product discovery platform where users can explore, share, and upvote the best products available on the internet — with direct links to their official websites.
+
+Whether you are a developer, a startup founder, or someone who simply works with AI tools every day — Products Hub gives you a single destination to discover what's trending, what's useful, and what's new.
+
+**Key highlights:**
+- Users can add any product (especially AI tools) with a link to the original website
+- Browse and discover products across categories — all in one platform
+- Upvote your favorites to help others find the best tools
+- Affordable subscription to access **Featured Products** — handpicked top tools
+- Affordable subscription to **publish your own product** and reach a wider audience
+- Built for everyone — from AI enthusiasts to everyday users
+
 ---
+
+A modern Product Hunt clone built with Next.js 16, React 19, and TypeScript. Discover, share, and upvote the best new products — with real-time updates, optimistic interactions, and server-side rendering.
 
 ## 🔗 Links
 
-- 🌐 **Live Site:** [products-hub.vercel.app](https://products-hunt-frontend.vercel.app)
-- ⚙️ **Backend API:** [api.products-hub.com](https://github.com/Tanvir4312/products-hub-backend)
+- 🌐 **Live Site:** [Products Hunt](https://products-hunt-frontend.vercel.app)
+- 🖥️ **Backend:** [Products Hunt Backend](https://github.com/Tanvir4312/products-hub-backend)
+
+---
 
 ## Tech Stack
 
@@ -24,7 +44,7 @@ A modern Product Hunt clone built with Next.js 16, React 19, and TypeScript. Dis
 | Charts | Recharts |
 | Auth | Better Auth, JWT |
 | HTTP Client | Axios |
-| AI Assistant | Google Generative AI (AI SDK) |
+| AI Provider | Groq (LLaMA 3.3 70B) |
 | Real-time | Server-Sent Events (SSE) |
 | Icons | Lucide React, React Icons |
 
@@ -48,13 +68,45 @@ Upvoting a product updates the count **instantly** in the UI — before the serv
 - Prevents double-clicking via `isPending` state
 
 ### 3. Real-time Activity Feed (SSE)
-A live activity feed on the homepage shows community activity in real time — no page refresh needed. When any user upvotes a product, all connected users see it instantly.
+A live activity feed on the admin dashboard shows community activity in real time — no page refresh needed. When any user upvotes a product, the admin sees it instantly without reloading the page.
 
 Built with Server-Sent Events (SSE):
 - `GET /api/feed` — clients connect and listen for events
 - `POST /api/feed` — server broadcasts events to all connected clients
 - 30-second heartbeat to keep connections alive
 - Auto-reconnects if the connection drops
+
+---
+
+## AI Features
+
+All AI features use **Groq** (LLaMA 3.3 70B) with structured JSON outputs, loading states, and error handling.
+
+### 1. AI Chat Assistant
+A context-aware chatbot embedded in the app. Users can ask questions about products, get recommendations, or get help navigating the platform.
+- Powered by Groq (LLaMA 3.3 70B) via backend API (`/api/v1/chat`)
+- Maintains conversation context
+- Located in `src/components/modules/Chat/`
+
+### 2. AI Product Description Generator
+When submitting a new product, users can click **"Generate with AI"** next to the description field. After filling in the product name and category, Gemini generates a professional description and tagline instantly.
+- Structured output: `{ description: string, tagline: string }`
+- Loading spinner while generating
+- Error handling with toast notification
+- Located in `src/app/(dashboardLayout)/user/dashboard/add-product/`
+
+### 3. AI Smart Recommendations
+On the homepage, the app analyzes the current user's upvote history and sends it to Gemini to recommend similar product categories and keywords. Those are then used to fetch relevant products from the API.
+- Structured output: `{ recommendedCategories: string[], keywords: string[] }`
+- Loading skeleton while fetching
+- Falls back to most-voted products on error
+- Located in `src/components/shared/RecommendedContent.tsx`
+
+### 4. AI Auto Tagging
+When submitting a product, users can click **"Suggest Tags with AI"** after filling in the name and description. Gemini suggests 3–5 relevant tags, matched against existing tags in the system. Each suggestion appears as a clickable chip — accept or reject individually.
+- Structured output: `{ suggestedTags: string[] }`
+- Matched against existing tags from the database
+- Located in `src/app/(dashboardLayout)/user/dashboard/add-product/`
 
 ---
 
@@ -128,6 +180,7 @@ Create a `.env.local` file in the root:
 ```env
 NEXT_PUBLIC_API_BASE_URL=your_api_base_url
 NEXT_PUBLIC_BACKEND_API=your_backend_url
+GROQ_API_KEY=your_groq_api_key
 ```
 
 ### Running Locally
@@ -171,7 +224,36 @@ bun start
 
 ---
 
-## User Roles
+## Testing the AI Features
+
+### AI Chat Assistant
+1. Open any page — click the chat icon
+2. Ask: "What are the best AI products?"
+3. Should respond with context-aware answer
+4. ✅ Working if response appears without errors
+
+### AI Product Description Generator
+1. Login → User Dashboard → Add Product
+2. Fill in product name and category
+3. Click **"Generate with AI"** next to description
+4. Should show loading spinner, then fill the description field
+5. ✅ Working if description auto-fills
+
+### AI Smart Recommendations
+1. Upvote a few products first
+2. Go to Homepage — scroll to Recommended section
+3. Should show products related to your upvote history
+4. ✅ Working if recommendations match your interests
+
+### AI Auto Tagging
+1. Login → User Dashboard → Add Product
+2. Fill in product name and description
+3. Click **"Suggest Tags with AI"** next to tags field
+4. Should show 3–5 clickable tag chips
+5. Click to accept tags, click again to reject
+6. ✅ Working if relevant tags appear as chips
+
+---
 
 | Role | Access |
 |---|---|

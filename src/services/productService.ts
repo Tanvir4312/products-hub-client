@@ -115,6 +115,30 @@ export const updateProduct = async (id: string, formData: FormData): Promise<ISi
 };
 
 /**
+ * Fetches user's upvoted products.
+ */
+export const getUpvotedProducts = async (): Promise<IProduct[]> => {
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.getAll().map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+    const res = await fetch(`${API_BASE_URL}/products/upvoted`, {
+      headers: { Cookie: cookieHeader },
+      next: { revalidate: 60 },
+    });
+
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.message || "Failed to fetch upvoted products");
+    return json?.data?.data || [];
+  } catch (error: any) {
+    console.error("Error fetching upvoted products:", error);
+    return [];
+  }
+};
+
+/**
  * Deletes a product.
  */
 export const deleteProduct = async (id: string): Promise<{ success: boolean; message: string }> => {

@@ -1,5 +1,7 @@
 
 import { getUserInfo } from "../../services/authService";
+import { getUpvotedProducts } from "@/services/productService";
+import { IProduct } from "@/types/product.types";
 
 // import { UserRole } from "../../lib/authUtils";
 
@@ -14,13 +16,22 @@ import NewReleases from "@/components/modules/Home_Page/NewReleases/NewReleases"
 import BrowseByCategory from "@/components/modules/Home_Page/BrowseByCategory/BrowseByCategory";
 import SpecialOffers from "@/components/modules/Home_Page/SpecialOffers/SpecialOffers";
 import Leaderboard from "@/components/modules/Home_Page/Leaderboard/Leaderboard";
-import ActivityFeed from "@/components/modules/Home_Page/ActivityFeed/ActivityFeed";
+import { RecommendedContent } from "@/components/shared/AI/RecommendedContent";
 
 
 
 
 const CommonHomePage = async () => {
   const userInfo = await getUserInfo();
+  let upvotedProducts: IProduct[] = [];
+  if (userInfo) {
+    try {
+      upvotedProducts = await getUpvotedProducts();
+    } catch (error) {
+      // Backend endpoint may not exist, continue with empty array
+      console.log("Upvoted products fetch failed:", error);
+    }
+  }
   // console.log(userInfo);
   // let userRole = userInfo?.role
   // const unifySuperAdminAndAdminRole = userRole === "SUPER_ADMIN" ? "ADMIN" : userRole
@@ -48,23 +59,26 @@ const CommonHomePage = async () => {
           <MostVotedProducts />
           <NewReleases />
           
-          {/* Live Activity Feed - Full Width Section */}
-          <section className="px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-primary/5 text-primary text-[10px] font-black uppercase tracking-[0.2em] border border-primary/10 mb-4">
-                  Real-Time Updates
-                </span>
-                <h2 className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
-                  Live <span className="text-primary italic font-serif">Activity</span>
-                </h2>
-                <p className="text-muted-foreground text-lg font-medium mt-3 max-w-2xl mx-auto">
-                  Watch the community in action as new products launch and votes come in.
-                </p>
+          {/* AI Smart Recommendations - Logged in users only */}
+          {userInfo && (
+            <section className="px-4 sm:px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-12">
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-indigo-500/5 text-indigo-500 text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/10 mb-4">
+                    AI Powered
+                  </span>
+                  <h2 className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
+                    Recommended <span className="text-indigo-500 italic font-serif">For You</span>
+                  </h2>
+                  <p className="text-muted-foreground text-lg font-medium mt-3 max-w-2xl mx-auto">
+                    Personalized product suggestions based on your interests.
+                  </p>
+                </div>
+                <RecommendedContent upvotedProducts={upvotedProducts} />
               </div>
-              <ActivityFeed />
-            </div>
-          </section>
+            </section>
+          )}
+
           
           <BrowseByCategory />
           <SpecialOffers />

@@ -4,67 +4,91 @@ import React, { useState, useEffect } from 'react'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Rocket, 
-  Image as ImageIcon, 
-  Link as LinkIcon, 
-  Type, 
-  AlignLeft, 
-  Hash, 
-  Plus, 
-  X, 
-  Sparkles, 
+import {
+  Rocket,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Type,
+  AlignLeft,
+  Hash,
+  Plus,
+  X,
+  Sparkles,
   CheckCircle2,
   ArrowRight,
-  Info
+  Info,
+  ShieldAlert,
+  Lock
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
 } from '@/components/ui/popover'
-import { 
-  Command, 
-  CommandEmpty, 
-  CommandGroup, 
-  CommandInput, 
-  CommandItem 
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem
 } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
 
 import { useTags } from '@/hooks/useTags'
+import { useMyProducts } from '@/hooks/useProducts'
+import { getMySubscription } from '@/services/subscriptionService'
 import { createProduct } from '@/services/productService'
 import { createProductSchema, CreateProductFormValues } from '@/zod/productZodValidation'
 import { ProductCard } from '@/components/shared/ProductCard/ProductCard'
+import { DescriptionGenerator } from '@/components/shared/AI/DescriptionGenerator'
+import { TagSuggester } from '@/components/shared/AI/TagSuggester'
 
 const AddProduct = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: tagsData } = useTags()
-  
+
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [mounted, setMounted] = useState(false)
+
+  // Fetch subscription data
+  const { data: subscriptionRes } = useQuery({
+    queryKey: ['my-subscription'],
+    queryFn: () => getMySubscription()
+  })
+
+  // Fetch my products count
+  const { data: myProductsData } = useMyProducts()
+
+  const subscription = subscriptionRes?.data
+  const isSubscribed = subscription?.isSubscribed && subscription?.paymentVerified
+  const productCount = myProductsData?.meta?.total || 0
+  const productLimit = 2
+  const isLimitReached = !isSubscribed && productCount >= productLimit
+  const remainingSlots = Math.max(0, productLimit - productCount)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const { 
-    register, 
-    handleSubmit, 
-    control, 
-    watch, 
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
     setValue,
-    formState: { errors } 
+    formState: { errors }
   } = useForm<CreateProductFormValues>({
     resolver: zodResolver(createProductSchema) as any,
     defaultValues: {
@@ -113,9 +137,9 @@ const AddProduct = () => {
     formData.append('name', values.name)
     formData.append('description', values.description)
     formData.append('links', values.links)
-    
+
     values.tagIds.forEach(id => formData.append('tagIds', id))
-    
+
     if (selectedFile) {
       formData.append('photo', selectedFile)
     }
@@ -170,8 +194,41 @@ const AddProduct = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12">
+        {/* Limit Notice for Non-Subscribed Users */}
+        {mounted && !isSubscribed && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <Alert className="bg-primary/5 border-primary/10 rounded-[2.5rem] p-8 shadow-sm">
+              <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                  <ShieldAlert className="w-8 h-8" />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <AlertTitle className="text-xl font-black uppercase tracking-tight text-foreground">
+                    Innovation Capacity
+                  </AlertTitle>
+                  <AlertDescription className="text-base font-medium text-muted-foreground">
+                    Free tier users can showcase up to <span className="text-primary font-black underline decoration-primary/30 underline-offset-4">2 products</span>.
+                    You currently have <span className="text-primary font-black">{remainingSlots}</span> slot{remainingSlots !== 1 ? 's' : ''} available.
+                  </AlertDescription>
+                </div>
+                <div className="md:ml-auto pt-2 md:pt-0">
+                  <Link href="/user/dashboard/my-subscription">
+                    <Button className="rounded-2xl h-12 px-8 font-black uppercase text-[11px] tracking-widest bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20">
+                      Unlock Unlimited
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Alert>
+          </motion.div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
+
           {/* Main Form Area */}
           <div className="lg:col-span-7 space-y-10">
             <section className="space-y-8">
@@ -185,7 +242,7 @@ const AddProduct = () => {
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Innovation Name</label>
                   <div className="relative group">
                     <Type className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input 
+                    <Input
                       {...register('name')}
                       placeholder="e.g. QuantumDesk AI"
                       className="rounded-2xl border-border bg-muted/30 focus:bg-background focus:ring-4 focus:ring-primary/10 h-14 pl-12 font-bold transition-all"
@@ -195,10 +252,17 @@ const AddProduct = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">The Narrative</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">The Narrative</label>
+                    <DescriptionGenerator
+                      productName={watchedValues.name}
+                      tags={watchedValues.tagIds.map((id: string) => tagsData?.find(t => t.id === id)?.name).filter(Boolean) as string[]}
+                      onGenerate={(description) => setValue('description', description, { shouldValidate: true })}
+                    />
+                  </div>
                   <div className="relative group">
                     <AlignLeft className="absolute left-4 top-5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Textarea 
+                    <Textarea
                       {...register('description')}
                       placeholder="Explain the problem you're solving and how your innovation works..."
                       className="rounded-2xl border-border bg-muted/30 focus:bg-background focus:ring-4 focus:ring-primary/10 min-h-[160px] pl-12 pt-5 font-medium leading-relaxed transition-all"
@@ -218,7 +282,7 @@ const AddProduct = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Visual Identity</label>
-                  <div 
+                  <div
                     className={cn(
                       "relative h-40 rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all group cursor-pointer overflow-hidden",
                       imagePreview ? "border-primary/40 bg-primary/5" : "border-border/60 bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
@@ -247,7 +311,7 @@ const AddProduct = () => {
                   <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Primary Link (URL)</label>
                   <div className="relative group">
                     <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input 
+                    <Input
                       {...register('links')}
                       placeholder="https://yourapp.com"
                       className="rounded-2xl border-border bg-muted/30 focus:bg-background focus:ring-4 focus:ring-primary/10 h-14 pl-12 font-bold transition-all"
@@ -269,8 +333,24 @@ const AddProduct = () => {
               </div>
 
               <div className="space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Discovery Tags (Select 1-3)</label>
-                
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Discovery Tags (Select 1 or more)</label>
+
+                <TagSuggester
+                  productName={watchedValues.name}
+                  description={watchedValues.description}
+                  existingTags={tagsData?.map(t => ({ id: t.id, name: t.name })) || []}
+                  selectedTagIds={watchedValues.tagIds}
+                  onAcceptTag={(tagIds) => {
+                    const currentTags = watchedValues.tagIds || [];
+                    const idsToAdd = (Array.isArray(tagIds) ? tagIds : [tagIds])
+                      .filter(id => !currentTags.includes(id));
+                      
+                    if (idsToAdd.length > 0) {
+                      setValue('tagIds', [...currentTags, ...idsToAdd], { shouldValidate: true });
+                    }
+                  }}
+                />
+
                 <div className="flex flex-wrap gap-2">
                   <AnimatePresence>
                     {watchedValues.tagIds.map(tagId => {
@@ -283,13 +363,13 @@ const AddProduct = () => {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.8, opacity: 0 }}
                         >
-                          <Badge 
-                            variant="secondary" 
+                          <Badge
+                            variant="secondary"
                             className="h-10 px-4 rounded-xl gap-2 font-black uppercase text-[10px] tracking-wider bg-primary/10 text-primary border border-primary/20"
                           >
                             <Hash className="w-3 h-3" />
                             {tag.name}
-                            <button 
+                            <button
                               type="button"
                               onClick={() => {
                                 setValue('tagIds', watchedValues.tagIds.filter(id => id !== tagId), { shouldValidate: true })
@@ -304,15 +384,15 @@ const AddProduct = () => {
                     })}
                   </AnimatePresence>
 
-                  <Controller 
+                  <Controller
                     name="tagIds"
                     control={control}
                     render={({ field }) => (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
+                          <Button
+                            type="button"
+                            variant="outline"
                             className="h-10 px-4 rounded-xl border-dashed border-border/50 hover:border-primary/40 hover:bg-primary/5 text-[10px] font-black uppercase tracking-widest gap-2"
                           >
                             <Plus className="w-3.5 h-3.5 text-primary" />
@@ -357,9 +437,9 @@ const AddProduct = () => {
                 <div className="w-1.5 h-8 bg-indigo-500 rounded-full" />
                 <h3 className="text-sm font-black uppercase tracking-[0.3em] text-foreground">Card Preview</h3>
               </div>
-              
+
               <div className="perspective-1000">
-                <motion.div 
+                <motion.div
                   className="w-full max-w-sm mx-auto"
                   animate={{ rotateY: 0 }}
                   whileHover={{ scale: 1.02 }}
@@ -376,15 +456,25 @@ const AddProduct = () => {
                   </p>
                 </div>
 
-                <Button 
+                <Button
                   type="submit"
-                  disabled={mutation.isPending}
-                  className="w-full h-16 rounded-[1.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1 active:scale-95 group"
+                  disabled={mutation.isPending || isLimitReached}
+                  className={cn(
+                    "w-full h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl transition-all hover:-translate-y-1 active:scale-95 group",
+                    isLimitReached
+                      ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 cursor-not-allowed shadow-none hover:translate-y-0"
+                      : "bg-primary hover:bg-primary/90 text-white shadow-primary/20 hover:shadow-primary/40"
+                  )}
                 >
                   {mutation.isPending ? (
                     <div className="flex items-center gap-3">
                       <div className="h-5 w-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Transmitting...</span>
+                    </div>
+                  ) : isLimitReached ? (
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Limit Reached - Upgrade to Post
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
@@ -394,6 +484,16 @@ const AddProduct = () => {
                     </div>
                   )}
                 </Button>
+
+                {isLimitReached && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-[10px] text-center font-black uppercase tracking-[0.1em] text-primary/80 mt-4 px-4 leading-relaxed"
+                  >
+                    You have reached your free tier limit. Upgrade to a premium subscription to continue sharing your innovations.
+                  </motion.p>
+                )}
               </div>
             </div>
           </div>
