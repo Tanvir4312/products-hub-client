@@ -15,16 +15,17 @@ import {
 import { registerSchema } from "@/zod/auth.validation";
 
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const RegisterForm = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const error = searchParams.get("error");
@@ -33,8 +34,14 @@ const RegisterForm = () => {
     }
   }, [searchParams]);
 
+  const queryClient = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: registerAction,
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["user", "me"] });
+      }
+    },
   });
 
   const form = useForm({
@@ -53,11 +60,15 @@ const RegisterForm = () => {
 
       try {
         const result = (await mutateAsync(value)) as any;
-        if (!result?.success) {
+        if (result?.success) {
+          await queryClient.invalidateQueries({ queryKey: ["user", "me"] });
+          if (result.redirect) {
+            router.push(result.redirect);
+          }
+        } else {
           setServerError(result?.message || "Registration failed");
         }
       } catch (error: any) {
-        if (error?.message?.includes("NEXT_REDIRECT")) throw error;
         setServerError("Registration failed. Please try again later.");
       }
     },

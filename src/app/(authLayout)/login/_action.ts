@@ -13,7 +13,7 @@ import { redirect } from "next/navigation";
 export const loginAction = async (
   payload: ILoginPayload,
   redirectPath?: string,
-): Promise<ILoginResponse | ApiErrorResponse> => {
+): Promise<any> => {
   const parsedPayload = loginZodSchema.safeParse(payload);
 
   if (!parsedPayload.success) {
@@ -37,7 +37,12 @@ export const loginAction = async (
     await setTokenInCookies("refreshToken", refreshToken);
     await setTokenInCookies("better-auth.session_token", token, 60 * 60 * 24);
     const targetPath = redirectPath && isValidRedirectForRole(redirectPath, role as UserRole) ? redirectPath : getDefaultDashboardRoute(role as UserRole);
-    redirect(targetPath);
+    return {
+      success: true,
+      message: "Login successful",
+      redirect: targetPath,
+      data: response.data
+    } as any;
 
 
   } catch (err: any) {

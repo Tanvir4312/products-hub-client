@@ -25,7 +25,10 @@ export const registerAction = async (payload: IRegisterData) => {
       if (refreshToken) await setTokenInCookies("refreshToken", refreshToken);
       if (token) await setTokenInCookies("better-auth.session_token", token, 60 * 60 * 24);
 
-      redirect(getDefaultDashboardRoute(role as UserRole));
+      return {
+        ...response,
+        redirect: getDefaultDashboardRoute(role as UserRole)
+      };
     }
 
     return response;

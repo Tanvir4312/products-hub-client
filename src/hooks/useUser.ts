@@ -10,6 +10,6 @@ export const useUser = () => {
       const user = await getUserInfo();
       return user;
     },
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 0,
   });
 };

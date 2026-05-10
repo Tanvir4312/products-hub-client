@@ -7,10 +7,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import DemoLoginButtons from "./DemoLoginButtons";
 import { ILoginPayload, loginZodSchema } from "@/zod/auth.validation";
@@ -24,6 +24,7 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const error = searchParams.get("error");
@@ -32,8 +33,14 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
     }
   }, [searchParams]);
 
+  const queryClient = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (payload: ILoginPayload) => loginAction(payload, redirectPath),
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["user", "me"] });
+      }
+    },
   });
 
   const form = useForm({
@@ -45,7 +52,12 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
       setServerError(null);
       try {
         const result = await mutateAsync(value) as any;
-        if (!result.success) {
+        if (result.success) {
+          await queryClient.invalidateQueries({ queryKey: ["user", "me"] });
+          if (result.redirect) {
+            router.push(result.redirect);
+          }
+        } else {
           setServerError(result.message || "Invalid credentials. Please try again.");
         }
       } catch (error: any) {
