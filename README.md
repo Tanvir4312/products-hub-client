@@ -20,8 +20,6 @@ Whether you are a developer, a startup founder, or someone who simply works with
 
 ---
 
-A modern Product Hunt clone built with Next.js 16, React 19, and TypeScript. Discover, share, and upvote the best new products — with real-time updates, optimistic interactions, and server-side rendering.
-
 ## 🔗 Links
 
 - 🌐 **Live Site:** [Products Hunt](https://products-hunt-frontend.vercel.app)
